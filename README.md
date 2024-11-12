@@ -10,7 +10,7 @@ conda activate mimicry
 
 ## Getting started
 
-1. Download pre-trained networks `*.pkl` files from [Huggingface](https://huggingface.co/awafa/cSG2) and put them under `./checkpoints`.
+1. Download pre-trained networks `*.pkl` files from [Huggingface](https://huggingface.co/awafa/cSG2) and put them under `./checkpoints/checkpoints`.
 
 2. Select one of the following datasets and go to the corresponding directory:
   - MNIST: `./mnist`
