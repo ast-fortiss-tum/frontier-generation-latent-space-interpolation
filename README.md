@@ -15,7 +15,8 @@ conda activate mimicry
 2. Select one of the following datasets and go to the corresponding directory:
   - MNIST: `./mnist`
   - FashionMNIST: `./f-mnist`
-  - SVHN: `./svhn` 
+  - SVHN: `./svhn`
+  - CIFAR-10: `./CIFAR-10`
 
 
 3. Adjust the default config in `./<DATASET>/config.py`.
