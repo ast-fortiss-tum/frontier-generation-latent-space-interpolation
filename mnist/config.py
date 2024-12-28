@@ -2,13 +2,14 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import dnnlib
+import torch 
 
-DEVICE = 'CPU'
+DEVICE = 'mps' if torch.backends.mps.is_available() else 'cpu'
 
 # StyleGAN2 model checkpoint
-INIT_PKL = '/Users/giorgi/Desktop/Github_project/Test_models/Checkpoints/Checkpoints/stylegan2_mnist_32x32-con.pkl'
+INIT_PKL = '/Users/gigimerabishvili/Desktop/frontier-generation-latent-space-interpolation/Checkpoints/Checkpoints/stylegan2_mnist_32x32-con.pkl'
 # Model used for prediction
-MODEL = '/Users/giorgi/Desktop/Github_project/Test_models/mnist/models/cnnClassifier_lowLR.h5'
+MODEL = '/Users/gigimerabishvili/Desktop/frontier-generation-latent-space-interpolation/mnist/models/cnnClassifier_lowLR.h5'
 num_classes = 10
 
 # Path to save the generated frontier pairs
@@ -18,11 +19,12 @@ FRONTIER_PAIRS = 'mnist/eval'
 STYLEMIX_LAYERS = [[7], [6], [5], [4], [3], [5,6], [3,4], [3,4,5,6]]
 
 # Number of frontier pair samples to generate
-SEARCH_LIMIT = 100 
+SEARCH_LIMIT = 10
 
 # Max number of stylemix seeds
 STYLEMIX_SEED_LIMIT = 100
 
+# Loosened thresholds
 SSIM_THRESHOLD = 0.95
 L2_RANGE = 0.2
 
@@ -73,12 +75,10 @@ NGEN = 10
 RUNTIME = 3600
 STEPSIZE = 10
 # Mutation Hyperparameters
-# range of the mutation
 MUTLOWERBOUND = 0.01
 MUTUPPERBOUND = 0.6
 
 # Reseeding Hyperparameters
-# extent of the reseeding operator
 RESEEDUPPERBOUND = 10
 
 K_SD = 0.1
@@ -88,8 +88,6 @@ K = 1
 
 # Archive configuration
 ARCHIVE_THRESHOLD = 4.0
-
-#------- NOT TUNING ----------
 
 # mutation operator probability
 MUTOPPROB = 0.5
@@ -108,5 +106,4 @@ REPORT_NAME = 'stats.csv'
 DATASET = 'mnist/original_dataset/janus_dataset_comparison.h5'
 EXPLABEL = 5
 
-# TODO: set interpreter
 INTERPRETER = '/home/vin/yes/envs/tf_gpu/bin/python'

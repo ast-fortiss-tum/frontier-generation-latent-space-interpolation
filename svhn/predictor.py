@@ -7,7 +7,6 @@ from config import MODEL, num_classes
 
 class Predictor:
 
-    # Load the pre-trained model.
     input_tensor = Input(shape=(32,32,1))
     model = Model1_svhn(input_tensor=input_tensor)
     print("Loaded model from disk")

@@ -8,7 +8,7 @@ import torch.nn
 import matplotlib.cm
 import dnnlib
 from torch_utils.ops import upfirdn2d
-import stylegan.legacy  
+import stylegan.legacy
 import config
 
 class CapturedException(Exception):
@@ -52,7 +52,6 @@ def _construct_affine_bandlimit_filter(mat, a=3, amax=16, aflt=64, up=4, cutoff_
     wi = _lanczos_window(xi, a) * _lanczos_window(yi, a)
     wo = _lanczos_window(xo, a) * _lanczos_window(yo, a)
     w = torch.fft.ifftn(torch.fft.fftn(wi) * torch.fft.fftn(wo)).real
-
     f = f * w
 
     c = (aflt - amax) * up
@@ -65,7 +64,6 @@ def _construct_affine_bandlimit_filter(mat, a=3, amax=16, aflt=64, up=4, cutoff_
 def _apply_affine_transformation(x, mat, up=4, **filter_kwargs):
     _N, _C, H, W = x.shape
     mat = torch.as_tensor(mat).to(dtype=torch.float32, device=x.device)
-
     f = _construct_affine_bandlimit_filter(mat, up=up, **filter_kwargs)
     assert f.ndim == 2 and f.shape[0] == f.shape[1] and f.shape[0] % 2 == 1
     p = f.shape[0] // 2
@@ -90,8 +88,10 @@ def _apply_affine_transformation(x, mat, up=4, **filter_kwargs):
 
 class Renderer:
     def __init__(self, disable_timing=False):
-        self._device = torch.device('cpu')
-        self._dtype = torch.float32 if self._device.type == 'mps' else torch.float64
+        
+        self._device = torch.device(config.DEVICE)
+        
+        self._dtype = torch.float32
         self._pkl_data = dict()
         self._networks = dict()
         self._cmaps = dict()
@@ -135,7 +135,7 @@ class Renderer:
             try:
                 net = copy.deepcopy(orig_net)
                 net = self._tweak_network(net, **tweak_kwargs)
-                net.to(self._device)
+                net.to(self._device) 
             except:
                 net = CapturedException()
             self._networks[cache_key] = net
@@ -177,8 +177,8 @@ class Renderer:
         mixclass_idx=None,
         stylemix_idx=[],
         stylemix_seed=None,
-        trunc_psi=config.TRUNC_PSI,  
-        trunc_cutoff=config.TRUNC_CUTOFF,  
+        trunc_psi=config.TRUNC_PSI,
+        trunc_cutoff=config.TRUNC_CUTOFF,
         random_seed=0,
         noise_mode='random',
         force_fp32=False,
@@ -190,7 +190,7 @@ class Renderer:
         to_pil=False,
         input_transform=None,
         untransform=False,
-        INTERPOLATION_ALPHA=1.0, 
+        INTERPOLATION_ALPHA=1.0,
     ):
         G = self.get_network(pkl, 'G_ema')
         self.G = G
@@ -220,7 +220,6 @@ class Renderer:
                 else:
                     rnd = np.random.RandomState(stylemix_seed)
                     stylemix_cs[:, rnd.randint(G.c_dim)] = 1
-
         else:
             all_seeds = w0_zs_seeds
 
@@ -243,7 +242,7 @@ class Renderer:
         else:
             all_cs = w0_cs
 
-        print(f"class: {class_idx}, w0_seed: {w0_seeds}, mixclass_idx:{mixclass_idx} , stylemix_seed:{stylemix_seed}, stylemix_idx:{stylemix_idx}")
+        print(f"class: {class_idx}, w0_seed: {w0_seeds}, mixclass_idx:{mixclass_idx}, stylemix_seed:{stylemix_seed}, stylemix_idx:{stylemix_idx}")
 
         all_zs = np.zeros([len(all_seeds), G.z_dim], dtype=np.float32)
         for idx, seed in enumerate(all_seeds):
@@ -256,9 +255,7 @@ class Renderer:
         if w_load is not None:
             w_load = self.to_device(torch.from_numpy(w_load)).squeeze(0)
 
-        # Generate latent vectors with truncation parameters
         all_ws = G.mapping(z=all_zs, c=all_cs, truncation_psi=trunc_psi, truncation_cutoff=trunc_cutoff) - w_avg
-
         all_ws = dict(zip(all_seeds, all_ws))
 
         if w_load is not None:
@@ -269,12 +266,14 @@ class Renderer:
                     elif w_load_seed is None:
                         all_ws[seed] = w_load
 
+        # Perform linear combination of w's:
         w = torch.stack([all_ws[seed] * weight for seed, weight in w0_seeds]).sum(dim=0, keepdim=True)
+
+        # Apply style mixing
         stylemix_idx = [idx for idx in stylemix_idx if 0 <= idx < G.num_ws]
         if stylemix_seed is not None and len(stylemix_idx) > 0:
             w2 = all_ws[stylemix_seed][np.newaxis, :]
             for idx in stylemix_idx:
-                # Linear interpolation using INTERPOLATION_ALPHA parameter
                 w[:, idx] = (1 - INTERPOLATION_ALPHA) * w[:, idx] + INTERPOLATION_ALPHA * w2[:, idx]
 
         if w_load is None:
@@ -297,8 +296,8 @@ class Renderer:
         out = out[0].to(torch.float32)
         if sel_channels > out.shape[0]:
             sel_channels = 1
-        base_channel = max(min(base_channel, out.shape[0] - sel_channels), 0)
-        sel = out[base_channel : base_channel + sel_channels]
+        base_channel_val = max(min(base_channel, out.shape[0] - sel_channels), 0)
+        sel = out[base_channel_val : base_channel_val + sel_channels]
         res.stats = torch.stack([
             out.mean(), sel.mean(),
             out.std(), sel.std(),
@@ -307,9 +306,11 @@ class Renderer:
 
         img = sel
         if img_normalize:
+            # Normalize to max absolute value
             img = img / img.norm(float('inf'), dim=[1,2], keepdim=True).clip(1e-8, 1e8)
         img = img * (10 ** (img_scale_db / 20))
         img = (img * 127.5 + 128).clamp(0, 255).to(torch.uint8).permute(1, 2, 0)
+
         if to_pil:
             from PIL import Image
             img = img.cpu().numpy()
@@ -330,6 +331,7 @@ class Renderer:
             outputs = list(outputs) if isinstance(outputs, (tuple, list)) else [outputs]
             outputs = [out for out in outputs if isinstance(out, torch.Tensor) and out.ndim in [4, 5]]
             for idx, out in enumerate(outputs):
+                
                 if out.ndim == 5:
                     out = out.mean(2)
                 name = submodule_names[module]

@@ -1,30 +1,32 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import dnnlib
+import torch
 
-DEVICE = 'CPU'
+DEVICE = 'mps' if torch.backends.mps.is_available() else 'cpu'
 
 # StyleGAN2 model checkpoint
-INIT_PKL = '/Users/giorgi/Desktop/Github_project/Test_models/Checkpoints/Checkpoints/stylegan2_f-mnist_32x32-con.pkl'
+INIT_PKL = '/Users/gigimerabishvili/Desktop/frontier-generation-latent-space-interpolation/Checkpoints/Checkpoints/stylegan2_f-mnist_32x32-con.pkl'
 # Model used for prediction
-MODEL = '/Users/giorgi/Desktop/Github_project/Test_models/f-mnist/models/Model1_fmnist.h5'
+MODEL = '/Users/gigimerabishvili/Desktop/frontier-generation-latent-space-interpolation/f-mnist/models/Model1_fmnist.h5'
 num_classes = 10
 
 # Path to save the generated frontier pairs
 FRONTIER_PAIRS = 'f-mnist/eval'
 
 # List of layers to perform stylemix
-STYLEMIX_LAYERS = [[7], [6], [5], [4], [3], [5,6], [3,4], [3,4,5,6]]
+STYLEMIX_LAYERS = [[7], [6], [5], [4], [3], [5,6], [3,4], [3,4,5,6], [2], [3,2]]
 
 # Number of frontier pair samples to generate
-SEARCH_LIMIT = 100
+SEARCH_LIMIT = 10
 
 # Max number of stylemix seeds
 STYLEMIX_SEED_LIMIT = 100
 
+# Loosened thresholds
 SSIM_THRESHOLD = 0.95
 L2_RANGE = 0.2
-
-# Value for interpolation
-INTERPOLATION_ALPHA = 0.1
 
 # Value for truncation psi
 TRUNC_PSI = 0
@@ -51,8 +53,8 @@ STYLEGAN_INIT = {
         "img_scale_db": 0,
         "img_normalize": True,
         "to_pil": True,
-        "input_transform" : None,
-        "untransform": False,
+        "input_transform": None,
+        "untransform": False
     },
     "device": DEVICE,
     "renderer": None,

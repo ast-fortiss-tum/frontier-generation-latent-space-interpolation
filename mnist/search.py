@@ -41,7 +41,6 @@ class mimicry:
         )
 
         info = copy.deepcopy(state['params'])
-
         return result, info
 
     def search(self):
@@ -66,7 +65,6 @@ class mimicry:
 
             digit, digit_info = self.render_state()
 
-            # Check if 'image' exists in 'digit'
             if 'image' not in digit:
                 print(f"Render failed with error: {digit.get('error', 'Unknown error')}")
                 self.w0_seed += self.step_size
@@ -125,9 +123,8 @@ class mimicry:
                     self.w0_seed += self.step_size
                     continue 
 
-                # Use accepted trunc_psi for renderings
+                # Use accepted trunc_psi
                 state['params']['trunc_psi'] = digit_info["trunc_psi"]
-
 
             found_at_least_one = False
             _, second_cls = np.argsort(-predictions)[:2]
@@ -147,7 +144,7 @@ class mimicry:
                             for idx, layer in enumerate(self.layers):
                                 state["params"]["stylemix_idx"] = layer
 
-                                # First check if full interpolation triggers the classifier
+                                # First check if full interpolation triggers classifier shift
                                 state["params"]["INTERPOLATION_ALPHA"] = 1.0
                                 m_digit, m_digit_info = self.render_state()
 
@@ -167,7 +164,6 @@ class mimicry:
 
                                 if m_class != label:
                                     # Full interpolation causes misclassification
-                                    # Proceed to binary search to find optimal alpha
                                     alpha_min = 0.0
                                     alpha_max = 1.0
                                     iteration = 0
@@ -210,7 +206,6 @@ class mimicry:
 
                                         iteration += 1
 
-                                    
                                     if alpha_max != 1.0:
                                         state["params"]["INTERPOLATION_ALPHA"] = alpha_max
                                         m_digit, m_digit_info = self.render_state()
@@ -258,7 +253,6 @@ class mimicry:
                                                     correct_img_path = f"{path}/{correct_img_name}"
                                                     correct_pil_image.save(correct_img_path)
 
-                                                    # Save metadata for correct image
                                                     correct_info = m_digit_info.copy()
                                                     correct_info["alpha"] = float(last_correct_alpha)
                                                     correct_info["accepted"] = True
@@ -282,7 +276,6 @@ class mimicry:
                                                 with open(f"{m_path}/{m_name}.json", 'w') as f:
                                                     json.dump(m_digit_info, f, sort_keys=True, indent=4)
 
-                                                # Save misclassified image
                                                 m_image_uint8 = np.clip(m_image_array, 0, 255).astype(np.uint8)
                                                 m_pil_image = Image.fromarray(m_image_uint8)
                                                 m_pil_image.save(f"{m_path}/{m_name}.png")
@@ -296,9 +289,16 @@ class mimicry:
                                         print("Could not find alpha where acceptance changes from True to False")
                                 else:
                                     print("Full interpolation did not cause misclassification; skipping binary search.")
+
                             if found_mutation:
-                                break 
+                                break  # Stop checking more layers if frontier found.
+
                             self.stylemix_seed += 1
+
+                        # if we found a frontier, break from stylemix_cls loop
+                        if found_mutation:
+                            break  
+
             self.w0_seed += self.step_size
 
 def run_mimicry(class_idx, w0_seed=0, step_size=1):
@@ -306,14 +306,4 @@ def run_mimicry(class_idx, w0_seed=0, step_size=1):
     mimicry_instance.search()
 
 if __name__ == "__main__":
-
-    #run_mimicry(class_idx=0)
-    #run_mimicry(class_idx=1)
     run_mimicry(class_idx=2)
-    #run_mimicry(class_idx=3)
-    #run_mimicry(class_idx=4)
-    #run_mimicry(class_idx=5)
-    #run_mimicry(class_idx=6)
-    #run_mimicry(class_idx=7)
-    #run_mimicry(class_idx=8)
-    #run_mimicry(class_idx=9)

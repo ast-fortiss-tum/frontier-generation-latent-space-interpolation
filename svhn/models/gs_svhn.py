@@ -104,8 +104,7 @@ def Model1_svhn(input_tensor=None, train=False):
         print('Overall Test accuracy:', score[1])
     else:
         # model.load_weights('svhn/models/Model1_svhn_gray.weights.h5')
-        model.load_weights('/Users/giorgi/Desktop/kloni/Test_models/svhn/models/Model1_svhn_gray.h5')
-        print('SVHN Grayscale Model1 loaded')
+        model.load_weights('/Users/gigimerabishvili/Desktop/frontier-generation-latent-space-interpolation/svhn/models/Model1_svhn_gray.h5')
 
     return model
 

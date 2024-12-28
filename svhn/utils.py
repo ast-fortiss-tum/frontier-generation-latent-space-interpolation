@@ -14,9 +14,6 @@ def convert_to_grayscale(img_array):
     return np.dot(img_array[...,:3], weights)
 
 def validate_mutation(img_array, m_img_array):
-    # if img_array.shape[2] == 3:
-    #     img_array = convert_to_grayscale(img_array)
-    #     m_img_array = convert_to_grayscale(m_img_array)
 
     img_l2 = np.linalg.norm(img_array)
     m_img_l2 = np.linalg.norm(m_img_array)
