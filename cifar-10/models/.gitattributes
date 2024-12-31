@@ -1,0 +1,1 @@
+vit_timm-cifar10-acc-97_47-ckpt.t7 filter=lfs diff=lfs merge=lfs -text
