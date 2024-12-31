@@ -13,15 +13,20 @@ conda activate mimicry
 1. Download pre-trained networks `*.pkl` files from [Huggingface](https://huggingface.co/awafa/cSG2) and put them under `./checkpoints/checkpoints`.
 
 2. Select one of the following datasets and go to the corresponding directory:
-  - MNIST: `./mnist`
-  - FashionMNIST: `./f-mnist`
-  - SVHN: `./svhn`
-  - CIFAR-10: `./CIFAR-10`
+  - MNIST: `./mnist` 
+  - FashionMNIST: `./f-mnist` 
+  - SVHN: `./svhn` 
+  - CIFAR-10: `./CIFAR-10` 
 
 
 3. Adjust the default config in `./<DATASET>/config.py`.
+   MNIST: Change paths in config.py
+   FashionMNIST: Change paths in config.py and in Model1_fmnist.py
+   SVHN: Change paths in config.py and gs_svhn.py
+   CIFAR-10: Change paths in config.py
+   
 
-4. Run the file `./<DATASET>/search.py` to generate frontier pairs.
+5. Run the file `./<DATASET>/search.py` to generate frontier pairs.
 
 
 
