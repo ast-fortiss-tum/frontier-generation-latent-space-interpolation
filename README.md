@@ -20,10 +20,10 @@ conda activate mimicry
 
 
 3. Adjust the default config in `./<DATASET>/config.py`.
-   MNIST: Change paths in config.py
-   FashionMNIST: Change paths in config.py and in Model1_fmnist.py
-   SVHN: Change paths in config.py and gs_svhn.py
-   CIFAR-10: Change paths in config.py
+   - MNIST: Change paths in config.py
+   - FashionMNIST: Change paths in config.py and in Model1_fmnist.py
+   - SVHN: Change paths in config.py and gs_svhn.py
+   - CIFAR-10: Change paths in config.py
    
 
 5. Run the file `./<DATASET>/search.py` to generate frontier pairs.
