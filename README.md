@@ -7,6 +7,21 @@ Codebase for Giorgi Merabishvili's internship project on Neural Model-Based Test
 conda env create -f environment.yml
 conda activate mimicry
 ```
+MNIST:
+- Gradual truncation was added to increase seed utilization.
+  
+FashionMNIST:
+- Two feature-different images are generated after switching the feature layer, followed by pixel-wise interpolation.
+- An additional search for exact 0.5 confidence is included.
+- Background masking is applied to interpolate only with objects.
+
+SVHN:
+- Linear weight interpolation is performed directly in the latent space.
+- A frontier pair is identified by fully changing the feature layer. Once found, linear weight interpolation is performed to approach the decision boundary.
+
+CIFAR-10:
+- Linear weight interpolation is performed directly in the latent space.
+- A frontier pair is identified by fully changing the feature layer. Once found, linear weight interpolation is performed to approach the decision boundary.
 
 ## Getting started
 
@@ -18,14 +33,12 @@ conda activate mimicry
   - SVHN: `./svhn` 
   - CIFAR-10: `./CIFAR-10` 
 
-
 3. Adjust the default config in `./<DATASET>/config.py`.
    - MNIST: Change paths in config.py
    - FashionMNIST: Change paths in config.py and in Model1_fmnist.py
    - SVHN: Change paths in config.py and gs_svhn.py
    - CIFAR-10: Change paths in config.py
    
-
 5. Run the file `./<DATASET>/search.py` to generate frontier pairs.
 
 
